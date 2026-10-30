@@ -2,30 +2,30 @@
   "error": {
     "code": 429,
     "message": "You exceeded your current quota, please ch)
-  google p01 ok em 6s
-  google p02 ok em 25s
-  google p03 ok em 6s
-  google p04 ok em 5s
+  google p01 ok em 5s
+  google p02 ok em 20s
+  google p03 ok em 22s
+  google p04 ok em 4s
   google p05 ok em 5s
-  google p06 ok em 5s
-  google p07 ok em 4s
-  google p08 ok em 5s
-  google p09 ok em 4s
-  google p10 ok em 5s
-  google p11 ok em 4s
-  google p12 ok em 7s
+  google p06 ok em 4s
+  google p07 ok em 5s
+  google p08 ok em 6s
+  google p09 ok em 5s
+  google p10 ok em 6s
+  google p11 ok em 3s
+  google p12 ok em 6s
 google: 12 de 12 respostas (gemini-flash-lite-latest (sem pesquisa))
-  openai p01 ok em 49s
+  openai p01 ok em 40s
   openai: sem pesquisa a partir daqui (HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `o)
-  openai p02 FALHOU em 10s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
-  openai p03 FALHOU em 10s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
-  openai p04 FALHOU em 10s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
-  openai p05 FALHOU em 10s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
-  openai p06 FALHOU em 10s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
-  openai p07 FALHOU em 10s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
-  openai p08 FALHOU em 10s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
-  openai p09 FALHOU em 10s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
-  openai p10 FALHOU em 10s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
-  openai p11 FALHOU em 10s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
-  openai p12 FALHOU em 10s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
-openai: 1 de 12 respostas (gpt-oss-120b (com pesquisa web)); falhas: p02 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p03 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p04 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p05 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p06 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p07 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p08 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p09 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p10 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p11 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p12 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
+  openai p02 FALHOU em 65s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
+  openai p03 FALHOU em 65s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
+  openai p04 FALHOU em 65s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
+  openai p05 ok em 7s
+  openai p06 FALHOU em 65s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
+  openai p07 FALHOU em 65s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
+  openai p08 FALHOU em 65s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
+  openai p09 ok em 5s
+  openai p10 FALHOU em 65s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
+  openai p11 FALHOU em 65s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
+  openai p12 FALHOU em 65s: HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
+openai: 3 de 12 respostas (gpt-oss-120b (com pesquisa web), gpt-oss-120b (sem pesquisa)); falhas: p02 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p03 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p04 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p06 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p07 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p08 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p10 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p11 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de | p12 HTTP 429: {"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m664beg9e9yv46qxqh8csvt3` service tier `on_de
