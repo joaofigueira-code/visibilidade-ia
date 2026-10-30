@@ -18,7 +18,8 @@ SAIDA = os.path.join(AQUI, 'respostas', DATA)
 def post(url, headers, body, espera=90, tent=2):
     erro = None
     for i in range(tent):
-        req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={**headers, 'Content-Type': 'application/json'})
+        # a Groq (Cloudflare) recusa o User-Agent do urllib com o erro 1010
+        req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={**headers, 'Content-Type': 'application/json', 'User-Agent': 'visibilidade-ia/1.0 (+https://github.com/joaofigueira-code/visibilidade-ia)'})
         try:
             with urllib.request.urlopen(req, timeout=espera) as r:
                 return json.load(r)
