@@ -24,7 +24,7 @@ def post(url, headers, body, espera=90, tent=2):
             with urllib.request.urlopen(req, timeout=espera) as r:
                 return json.load(r)
         except urllib.error.HTTPError as e:
-            erro = RuntimeError(f'HTTP {e.code}: ' + e.read().decode('utf-8', 'replace')[:200])
+            erro = RuntimeError(f'HTTP {e.code}: ' + e.read().decode('utf-8', 'replace')[:450])
             if e.code == 429 and 'quota' in str(erro).lower():
                 raise erro  # quota do dia esgotada: nao vale a pena repetir
             if e.code in (429, 500, 502, 503, 504) and i < tent - 1:
@@ -67,18 +67,11 @@ def google(q):
 
 
 def openai(q):
+    # sem pesquisa na web e com pouco raciocinio: na Groq gratis o limite por minuto conta o raciocinio e o que a pesquisa le,
+    # e com pesquisa so passava 1 pergunta em cada 4 minutos
     h = {'Authorization': 'Bearer ' + os.environ['GROQ_API_KEY']}
-    corpo = {'model': 'openai/gpt-oss-120b', 'messages': [{'role': 'user', 'content': q}]}
-    if pesquisa['openai']:
-        try:
-            r = post('https://api.groq.com/openai/v1/chat/completions', h, {**corpo, 'tools': [{'type': 'browser_search'}]}, espera=60, tent=1)
-            msg = r['choices'][0]['message']
-            fontes = [res['url'] for t in (msg.get('executed_tools') or []) for res in (((t.get('search_results') or {}).get('results')) or []) if res.get('url')]
-            return {'texto': msg.get('content') or '', 'modelo': 'gpt-oss-120b (com pesquisa web)', 'fontes': fontes}
-        except Exception as e:
-            print(f'  openai: sem pesquisa a partir daqui ({str(e)[:100]})', flush=True)
-            pesquisa['openai'] = False
-    r = post('https://api.groq.com/openai/v1/chat/completions', h, corpo)
+    corpo = {'model': 'openai/gpt-oss-120b', 'messages': [{'role': 'user', 'content': q}], 'reasoning_effort': 'low', 'max_completion_tokens': 2000}
+    r = post('https://api.groq.com/openai/v1/chat/completions', h, corpo, tent=4)
     return {'texto': r['choices'][0]['message'].get('content') or '', 'modelo': 'gpt-oss-120b (sem pesquisa)', 'fontes': []}
 
 
@@ -107,8 +100,8 @@ def main():
                 json.dump(out, open(ficheiro, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
                 print(f"  {motor} {q['id']} ok em {time.time() - t0:.0f}s", flush=True)
             except Exception as e:
-                falhas.append(f"{q['id']} {str(e)[:150]}")
-                print(f"  {motor} {q['id']} FALHOU em {time.time() - t0:.0f}s: {str(e)[:150]}", flush=True)
+                falhas.append(f"{q['id']} {str(e)[:450]}")
+                print(f"  {motor} {q['id']} FALHOU em {time.time() - t0:.0f}s: {str(e)[:450]}", flush=True)
             time.sleep(pausa)
         modelos = ', '.join(sorted({v['modelo'] for v in out.values()}))
         print(f'{motor}: {len(out)} de {len(PERGUNTAS)} respostas ({modelos})' + (f'; falhas: {" | ".join(falhas)}' if falhas else ''), flush=True)
