@@ -2,7 +2,7 @@ name: Perguntas de visibilidade em IA
 
 on:
   schedule:
-    - cron: '0 8 * * *'   # 08:00 UTC; a rotina na nuvem junta as respostas as 10:00 UTC
+    - cron: '0 8 * * *'   # 08:00 UTC; a rotina na nuvem junta as respostas as 09:00
   workflow_dispatch:       # botao "Run workflow" para correr a qualquer hora
   push:                    # e quando se muda o script ou as perguntas (para testar)
     paths: ['perguntar.py', 'perguntas.json', '.github/workflows/perguntar.yml']
@@ -10,21 +10,29 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: perguntas
+  cancel-in-progress: true
+
 jobs:
   perguntar:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - name: Fazer as 12 perguntas ao Gemini e ao gpt-oss
-        run: python3 perguntar.py
+        timeout-minutes: 30
+        run: python3 -u perguntar.py
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       - name: Gravar as respostas no repositorio
+        if: always()
         run: |
           git config user.name "rotina-ia"
           git config user.email "rotina-ia@users.noreply.github.com"
-          git add respostas
-          git diff --cached --quiet || git commit -m "Respostas de $(TZ=Europe/Lisbon date +%F)"
+          git add respostas || true
+          git diff --cached --quiet && exit 0
+          git commit -m "Respostas de $(TZ=Europe/Lisbon date +%F)"
+          git pull --rebase
           git push

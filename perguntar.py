@@ -2,9 +2,10 @@
 # Visibilidade da Redicom em motores de IA: faz as 12 perguntas de perguntas.json ao Google (Gemini) e a um modelo da
 # OpenAI (gpt-oss, servido de graca pela Groq) e grava as respostas em respostas/AAAA-MM-DD/<motor>.json
 # ({p01: {texto, modelo, fontes}}). Corre todos os dias no GitHub Actions; a rotina na nuvem do Claude le estes ficheiros
-# as 10:00 UTC e junta-os ao dashboard de notoriedade.
+# as 09:00 e junta-os ao dashboard de notoriedade.
 # Chaves (Secrets do repositorio): GEMINI_API_KEY e GROQ_API_KEY. Nunca sao escritas.
-import json, os, sys, time, urllib.error, urllib.request
+# Grava depois de cada resposta, para nao perder o que ja tem se o GitHub parar a meio.
+import json, os, socket, time, urllib.error, urllib.request
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -14,101 +15,91 @@ DATA = datetime.now(ZoneInfo('Europe/Lisbon')).strftime('%Y-%m-%d')
 SAIDA = os.path.join(AQUI, 'respostas', DATA)
 
 
-class Quota(Exception):
-    pass
-
-
-def post(url, headers, body, tent=3):
+def post(url, headers, body, espera=90, tent=2):
+    erro = None
     for i in range(tent):
         req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={**headers, 'Content-Type': 'application/json'})
         try:
-            with urllib.request.urlopen(req, timeout=180) as r:
+            with urllib.request.urlopen(req, timeout=espera) as r:
                 return json.load(r)
         except urllib.error.HTTPError as e:
-            msg = e.read().decode('utf-8', 'replace')[:300]
-            if e.code == 429 and 'quota' in msg.lower():
-                raise Quota(msg)
+            erro = RuntimeError(f'HTTP {e.code}: ' + e.read().decode('utf-8', 'replace')[:200])
+            if e.code == 429 and 'quota' in str(erro).lower():
+                raise erro  # quota do dia esgotada: nao vale a pena repetir
             if e.code in (429, 500, 502, 503, 504) and i < tent - 1:
-                time.sleep(20 * (i + 1))
+                time.sleep(10)
                 continue
-            raise RuntimeError(f'HTTP {e.code}: {msg}')
-        except (urllib.error.URLError, TimeoutError) as e:
+            raise erro
+        except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
+            erro = RuntimeError(f'rede: {e}')
             if i < tent - 1:
-                time.sleep(20)
+                time.sleep(5)
                 continue
-            raise RuntimeError(f'rede: {e}')
+            raise erro
+    raise erro
 
 
-# Google: com pesquisa Google enquanto a quota gratuita deixar; depois so com o que o modelo sabe
-estado = {'pesquisa': True}
+# so se tenta a pesquisa na web na 1.a pergunta; se falhar (quota gratuita, demora), o resto vai sem pesquisa
+pesquisa = {'google': True, 'openai': True}
 
 
 def google(q):
     h = {'x-goog-api-key': os.environ['GEMINI_API_KEY']}
     corpo = {'contents': [{'role': 'user', 'parts': [{'text': q}]}]}
-    if estado['pesquisa']:
+    if pesquisa['google']:
         try:
-            r = post('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', h, {**corpo, 'tools': [{'google_search': {}}]})
+            r = post('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent', h, {**corpo, 'tools': [{'google_search': {}}]}, espera=60, tent=1)
             c = r['candidates'][0]
             fontes = [(ch.get('web', {}).get('title', '') + ' ' + ch.get('web', {}).get('uri', '')).strip() for ch in c.get('groundingMetadata', {}).get('groundingChunks', [])]
-            return {'texto': ''.join(p.get('text', '') for p in c['content']['parts']), 'modelo': 'gemini-flash-latest (com pesquisa Google)', 'fontes': fontes}
-        except Quota:
-            estado['pesquisa'] = False
-        except (RuntimeError, KeyError, IndexError):
-            pass
+            return {'texto': ''.join(p.get('text', '') for p in c['content']['parts']), 'modelo': 'gemini-3.5-flash (com pesquisa Google)', 'fontes': fontes}
+        except Exception as e:
+            print(f'  google: sem pesquisa a partir daqui ({str(e)[:100]})', flush=True)
+            pesquisa['google'] = False
     erro = None
-    for m in ('gemini-3.5-flash', 'gemini-flash-latest', 'gemini-flash-lite-latest'):
+    for m in ('gemini-3.5-flash', 'gemini-flash-lite-latest'):
         try:
             r = post(f'https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent', h, corpo)
             return {'texto': ''.join(p.get('text', '') for p in r['candidates'][0]['content']['parts']), 'modelo': f'{m} (sem pesquisa)', 'fontes': []}
-        except (RuntimeError, Quota, KeyError, IndexError) as e:
+        except Exception as e:
             erro = e
     raise RuntimeError(erro)
-
-
-# OpenAI: modelo aberto gpt-oss pela Groq; tenta com a pesquisa na web da Groq e, se nao der, sem pesquisa
-estado_oa = {'pesquisa': True}
 
 
 def openai(q):
     h = {'Authorization': 'Bearer ' + os.environ['GROQ_API_KEY']}
     corpo = {'model': 'openai/gpt-oss-120b', 'messages': [{'role': 'user', 'content': q}]}
-    if estado_oa['pesquisa']:
+    if pesquisa['openai']:
         try:
-            r = post('https://api.groq.com/openai/v1/chat/completions', h, {**corpo, 'tools': [{'type': 'browser_search'}]})
+            r = post('https://api.groq.com/openai/v1/chat/completions', h, {**corpo, 'tools': [{'type': 'browser_search'}]}, espera=60, tent=1)
             msg = r['choices'][0]['message']
-            fontes = []
-            for t in msg.get('executed_tools') or []:
-                for res in ((t.get('search_results') or {}).get('results') or []):
-                    if res.get('url'):
-                        fontes.append(res['url'])
+            fontes = [res['url'] for t in (msg.get('executed_tools') or []) for res in (((t.get('search_results') or {}).get('results')) or []) if res.get('url')]
             return {'texto': msg.get('content') or '', 'modelo': 'gpt-oss-120b (com pesquisa web)', 'fontes': fontes}
-        except (RuntimeError, Quota, KeyError, IndexError):
-            estado_oa['pesquisa'] = False
+        except Exception as e:
+            print(f'  openai: sem pesquisa a partir daqui ({str(e)[:100]})', flush=True)
+            pesquisa['openai'] = False
     r = post('https://api.groq.com/openai/v1/chat/completions', h, corpo)
     return {'texto': r['choices'][0]['message'].get('content') or '', 'modelo': 'gpt-oss-120b (sem pesquisa)', 'fontes': []}
 
 
 def main():
     os.makedirs(SAIDA, exist_ok=True)
-    falhou_tudo = True
-    for motor, f, chave, pausa in (('google', google, 'GEMINI_API_KEY', 5), ('openai', openai, 'GROQ_API_KEY', 3)):
+    for motor, f, chave in (('google', google, 'GEMINI_API_KEY'), ('openai', openai, 'GROQ_API_KEY')):
         if not os.environ.get(chave):
-            print(f'{motor}: FALTA o secret {chave}')
+            print(f'{motor}: FALTA o secret {chave}', flush=True)
             continue
-        out, falhas = {}, []
+        out, falhas, ficheiro = {}, [], os.path.join(SAIDA, f'{motor}.json')
         for q in PERGUNTAS:
+            t0 = time.time()
             try:
                 out[q['id']] = f(q['texto'])
+                json.dump(out, open(ficheiro, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+                print(f"  {motor} {q['id']} ok em {time.time() - t0:.0f}s", flush=True)
             except Exception as e:
                 falhas.append(f"{q['id']} {str(e)[:150]}")
-            time.sleep(pausa)
-        if out:
-            falhou_tudo = False
-            json.dump(out, open(os.path.join(SAIDA, f'{motor}.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+                print(f"  {motor} {q['id']} FALHOU em {time.time() - t0:.0f}s: {str(e)[:150]}", flush=True)
+            time.sleep(3)
         modelos = ', '.join(sorted({v['modelo'] for v in out.values()}))
-        print(f'{motor}: {len(out)} de {len(PERGUNTAS)} respostas ({modelos})' + (f'; falhas: {" | ".join(falhas)}' if falhas else ''))
-    sys.exit(1 if falhou_tudo else 0)
+        print(f'{motor}: {len(out)} de {len(PERGUNTAS)} respostas ({modelos})' + (f'; falhas: {" | ".join(falhas)}' if falhas else ''), flush=True)
 
 
 if __name__ == '__main__':
