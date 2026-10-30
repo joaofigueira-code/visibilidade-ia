@@ -28,7 +28,7 @@ def post(url, headers, body, espera=90, tent=2):
             if e.code == 429 and 'quota' in str(erro).lower():
                 raise erro  # quota do dia esgotada: nao vale a pena repetir
             if e.code in (429, 500, 502, 503, 504) and i < tent - 1:
-                time.sleep(10)
+                time.sleep(65 if "rate limit" in str(erro).lower() else 10)  # limite por minuto da Groq: espera e repete
                 continue
             raise erro
         except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
@@ -95,7 +95,7 @@ def print(*a, **k):  # o que se escreve no ecra fica tambem em respostas/AAAA-MM
 
 def main():
     os.makedirs(SAIDA, exist_ok=True)
-    for motor, f, chave in (('google', google, 'GEMINI_API_KEY'), ('openai', openai, 'GROQ_API_KEY')):
+    for motor, f, chave, pausa in (('google', google, 'GEMINI_API_KEY', 3), ('openai', openai, 'GROQ_API_KEY', 62)):  # Groq gratis: limite de texto por minuto
         if not os.environ.get(chave):
             print(f'{motor}: FALTA o secret {chave}', flush=True)
             continue
@@ -109,7 +109,7 @@ def main():
             except Exception as e:
                 falhas.append(f"{q['id']} {str(e)[:150]}")
                 print(f"  {motor} {q['id']} FALHOU em {time.time() - t0:.0f}s: {str(e)[:150]}", flush=True)
-            time.sleep(3)
+            time.sleep(pausa)
         modelos = ', '.join(sorted({v['modelo'] for v in out.values()}))
         print(f'{motor}: {len(out)} de {len(PERGUNTAS)} respostas ({modelos})' + (f'; falhas: {" | ".join(falhas)}' if falhas else ''), flush=True)
 
