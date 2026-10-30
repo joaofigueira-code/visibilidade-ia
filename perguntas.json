@@ -1,0 +1,14 @@
+[
+  {"id": "p01", "tipo": "sem_marca", "texto": "Quais são as melhores plataformas de e-commerce para grandes marcas em Portugal?"},
+  {"id": "p02", "tipo": "sem_marca", "texto": "Que empresa portuguesa recomendas para criar a loja online de uma marca de moda?"},
+  {"id": "p03", "tipo": "sem_marca", "texto": "Qual a melhor plataforma omnicanal (loja física e online) para retalho em Portugal?"},
+  {"id": "p04", "tipo": "sem_marca", "texto": "Que plataforma de e-commerce B2B recomendas para uma empresa portuguesa?"},
+  {"id": "p05", "tipo": "sem_marca", "texto": "Quais são as alternativas portuguesas ao Shopify Plus, Salesforce Commerce Cloud ou VTEX?"},
+  {"id": "p06", "tipo": "sem_marca", "texto": "Quero sair do Magento. Que plataformas de e-commerce devo considerar em Portugal?"},
+  {"id": "p07", "tipo": "sem_marca", "texto": "Que empresas em Portugal oferecem e-commerce com inteligência artificial para retalho?"},
+  {"id": "p08", "tipo": "sem_marca", "texto": "Que plataforma de e-commerce escolher para vender online em vários países a partir de Portugal?"},
+  {"id": "p09", "tipo": "sem_marca", "texto": "Que tecnológicas portuguesas de e-commerce trabalham com marcas internacionais?"},
+  {"id": "p10", "tipo": "sem_marca", "texto": "What are the best enterprise e-commerce platforms in Portugal?"},
+  {"id": "p11", "tipo": "com_marca", "texto": "O que é a Redicom e que serviços oferece?"},
+  {"id": "p12", "tipo": "com_marca", "texto": "A Redicom é uma boa escolha para uma marca de retalho? Que alternativas existem?"}
+]
