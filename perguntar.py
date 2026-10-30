@@ -81,6 +81,17 @@ def openai(q):
     return {'texto': r['choices'][0]['message'].get('content') or '', 'modelo': 'gpt-oss-120b (sem pesquisa)', 'fontes': []}
 
 
+_print = print
+LOG = []
+
+
+def print(*a, **k):  # o que se escreve no ecra fica tambem em respostas/AAAA-MM-DD/estado.txt (sem chaves)
+    LOG.append(' '.join(str(x) for x in a))
+    _print(*a, **k)
+    with open(os.path.join(SAIDA, 'estado.txt'), 'w', encoding='utf-8') as fh:
+        fh.write('\n'.join(LOG) + '\n')
+
+
 def main():
     os.makedirs(SAIDA, exist_ok=True)
     for motor, f, chave in (('google', google, 'GEMINI_API_KEY'), ('openai', openai, 'GROQ_API_KEY')):
