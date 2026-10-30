@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '0 8 * * *'   # 08:00 UTC; a rotina na nuvem junta as respostas as 10:00 UTC
   workflow_dispatch:       # botao "Run workflow" para correr a qualquer hora
+  push:                    # e quando se muda o script ou as perguntas (para testar)
+    paths: ['perguntar.py', 'perguntas.json', '.github/workflows/perguntar.yml']
 
 permissions:
   contents: write
