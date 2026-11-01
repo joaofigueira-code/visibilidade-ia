@@ -1,0 +1,30 @@
+  google: sem pesquisa a partir daqui (HTTP 429: {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please ch)
+  google p01 ok em 17s
+  google p02 ok em 16s
+  google p03 ok em 17s
+  google p04 ok em 14s
+  google p05 ok em 44s
+  google p06 ok em 17s
+  google p07 ok em 35s
+  google p08 ok em 17s
+  google p09 ok em 14s
+  google p10 ok em 20s
+  google p11 ok em 11s
+  google p12 ok em 16s
+google: 12 de 12 respostas (gemini-3.5-flash (sem pesquisa))
+  openai p01 ok em 5s
+  openai p02 ok em 4s
+  openai p03 ok em 4s
+  openai p04 ok em 4s
+  openai p05 ok em 5s
+  openai p06 ok em 5s
+  openai p07 ok em 4s
+  openai p08 ok em 4s
+  openai p09 ok em 4s
+  openai p10 ok em 4s
+  openai p11 ok em 2s
+  openai p12 ok em 5s
+openai: 12 de 12 respostas (gpt-oss-120b (sem pesquisa))
