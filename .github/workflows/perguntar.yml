@@ -2,7 +2,10 @@ name: Perguntas de visibilidade em IA
 
 on:
   schedule:
-    - cron: '0 8 * * *'   # 08:00 UTC; a rotina na nuvem junta as respostas as 09:00
+    # de madrugada e em minutos fora de hora: o GitHub chega a atrasar 6 horas os agendamentos das horas certas.
+    # A segunda corrida so pergunta o que faltar. A rotina na nuvem junta as respostas as 09:00 (Lisboa).
+    - cron: '23 2 * * *'
+    - cron: '41 5 * * *'
   workflow_dispatch:       # botao "Run workflow" para correr a qualquer hora
   push:                    # e quando se muda o script ou as perguntas (para testar)
     paths: ['perguntar.py', 'perguntas.json', '.github/workflows/perguntar.yml']
@@ -12,7 +15,7 @@ permissions:
 
 concurrency:
   group: perguntas
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   perguntar:

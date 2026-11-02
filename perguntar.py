@@ -93,7 +93,12 @@ def main():
             print(f'{motor}: FALTA o secret {chave}', flush=True)
             continue
         out, falhas, ficheiro = {}, [], os.path.join(SAIDA, f'{motor}.json')
+        # o workflow corre mais de uma vez por dia (o GitHub atrasa os agendamentos): so pergunta o que ainda falta hoje
+        if os.path.exists(ficheiro):
+            out = json.load(open(ficheiro, encoding='utf-8'))
         for q in PERGUNTAS:
+            if out.get(q['id'], {}).get('texto', '').strip():
+                continue
             t0 = time.time()
             try:
                 out[q['id']] = f(q['texto'])
