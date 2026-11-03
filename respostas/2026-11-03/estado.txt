@@ -1,2 +1,47 @@
-google: 12 de 12 respostas (gemini-3.5-flash (sem pesquisa))
-openai: 12 de 12 respostas (gpt-oss-120b (sem pesquisa))
+google: memoria deste mes ja medida
+openai: memoria deste mes ja medida
+  gemini_web: gemini-3.5-flash fora desta corrida (HTTP 429: {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. ",)
+  gemini_web: gemini-flash-latest fora desta corrida (HTTP 429: {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. ",)
+  gemini_web: gemini-2.5-flash fora desta corrida (HTTP 404: {
+  "error": {
+    "code": 404,
+    "message": "This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemin)
+  gemini_web: gemini-flash-lite-latest fora desta corrida (HTTP 429: {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. ",)
+  gemini_web: gemini-2.5-flash-lite fora desta corrida (HTTP 404: {
+  "error": {
+    "code": 404,
+    "message": "This model models/gemini-2.5-flash-lite is no longer available to new users. Please update your code to use models/gemini-3.5-flash-lite for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google)
+  gemini_web p01 FALHOU em 1s: gemini-3.5-flash: HTTP 429: {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. ", | gemini-flash-latest: HTTP 429: {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your
+  gemini_web p02 FALHOU em 0s: nenhum modelo com pesquisa disponivel
+  gemini_web p03 FALHOU em 0s: nenhum modelo com pesquisa disponivel
+  gemini_web p04 FALHOU em 0s: nenhum modelo com pesquisa disponivel
+  gemini_web p05 FALHOU em 0s: nenhum modelo com pesquisa disponivel
+  gemini_web p06 FALHOU em 0s: nenhum modelo com pesquisa disponivel
+  gemini_web p07 FALHOU em 0s: nenhum modelo com pesquisa disponivel
+  gemini_web p08 FALHOU em 0s: nenhum modelo com pesquisa disponivel
+  gemini_web p09 FALHOU em 0s: nenhum modelo com pesquisa disponivel
+  gemini_web p10 FALHOU em 0s: nenhum modelo com pesquisa disponivel
+  gemini_web p11 FALHOU em 0s: nenhum modelo com pesquisa disponivel
+  gemini_web p12 FALHOU em 0s: nenhum modelo com pesquisa disponivel
+gemini_web: 0 de 12 respostas (); falhas: p01 gemini-3.5-flash: HTTP 429: {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. ", | gemini-flash-latest: HTTP 429: {
+  "error": {
+    "code": 429,
+    "message": "You exceeded your current quota, please check your | p02 nenhum modelo com pesquisa disponivel | p03 nenhum modelo com pesquisa disponivel | p04 nenhum modelo com pesquisa disponivel | p05 nenhum modelo com pesquisa disponivel | p06 nenhum modelo com pesquisa disponivel | p07 nenhum modelo com pesquisa disponivel | p08 nenhum modelo com pesquisa disponivel | p09 nenhum modelo com pesquisa disponivel | p10 nenhum modelo com pesquisa disponivel | p11 nenhum modelo com pesquisa disponivel | p12 nenhum modelo com pesquisa disponivel
