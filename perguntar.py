@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-# Visibilidade da Redicom em motores de IA: faz as 12 perguntas de perguntas.json ao Google (Gemini) e a um modelo da
-# OpenAI (gpt-oss, servido de graca pela Groq) e grava as respostas em respostas/AAAA-MM-DD/<motor>.json
-# ({p01: {texto, modelo, fontes}}). Corre todos os dias no GitHub Actions; a rotina na nuvem do Claude le estes ficheiros
-# as 09:00 e junta-os ao dashboard de notoriedade.
+# Visibilidade da Redicom em motores de IA: faz as 12 perguntas de perguntas.json e grava as respostas em
+# respostas/AAAA-MM-DD/<motor>.json ({p01: {texto, modelo, fontes}}):
+#   gemini_web  Gemini com pesquisa Google, todos os dias (conta para a meta)
+#   google      Gemini sem pesquisa e openai = gpt-oss (modelo aberto da OpenAI, servido de graca pela Groq), uma vez
+#               por mes: medem o que os modelos sabem de memoria (fica a parte no dashboard)
+# Corre no GitHub Actions (disparado pelo cron-job.org); a rotina na nuvem do Claude le estes ficheiros as 09:10 e
+# junta-os ao dashboard de notoriedade.
 # Chaves (Secrets do repositorio): GEMINI_API_KEY e GROQ_API_KEY. Nunca sao escritas.
 # Grava depois de cada resposta, para nao perder o que ja tem se o GitHub parar a meio.
 import json, os, socket, time, urllib.error, urllib.request
@@ -40,22 +43,37 @@ def post(url, headers, body, espera=90, tent=2):
     raise erro
 
 
-# so se tenta a pesquisa na web na 1.a pergunta; se falhar (quota gratuita, demora), o resto vai sem pesquisa
-pesquisa = {'google': True, 'openai': True}
+# Gemini com pesquisa Google (o que se ve no gemini.google.com): conta todos os dias para a meta. Nao ha recurso sem
+# pesquisa: se nenhum modelo pesquisar, a pergunta fica sem resposta e a corrida seguinte do dia volta a tentar.
+# Tenta os modelos por ordem; o que falhar com quota (429), pedido invalido (400) ou nao existir (404) sai desta corrida.
+MODELOS_PESQUISA = ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite']
+fora = set()
+
+
+def gemini_web(q):
+    h = {'x-goog-api-key': os.environ['GEMINI_API_KEY']}
+    corpo = {'contents': [{'role': 'user', 'parts': [{'text': q}]}], 'tools': [{'google_search': {}}]}
+    erros = []
+    for m in MODELOS_PESQUISA:
+        if m in fora:
+            continue
+        try:
+            r = post(f'https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent', h, corpo, espera=90, tent=1)
+            c = r['candidates'][0]
+            fontes = [(ch.get('web', {}).get('title', '') + ' ' + ch.get('web', {}).get('uri', '')).strip() for ch in c.get('groundingMetadata', {}).get('groundingChunks', [])]
+            return {'texto': ''.join(p.get('text', '') for p in c['content']['parts']), 'modelo': f'{m} (com pesquisa Google)', 'fontes': fontes}
+        except Exception as e:
+            erros.append(f'{m}: {str(e)[:300]}')
+            if any(f'HTTP {c}' in str(e) for c in (400, 404, 429)):
+                fora.add(m)
+                print(f'  gemini_web: {m} fora desta corrida ({str(e)[:300]})', flush=True)
+    raise RuntimeError(' | '.join(erros) or 'nenhum modelo com pesquisa disponivel')
 
 
 def google(q):
+    # memoria do Gemini, sem pesquisa: so uma vez por mes (ver main)
     h = {'x-goog-api-key': os.environ['GEMINI_API_KEY']}
     corpo = {'contents': [{'role': 'user', 'parts': [{'text': q}]}]}
-    if pesquisa['google']:
-        try:
-            r = post('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent', h, {**corpo, 'tools': [{'google_search': {}}]}, espera=60, tent=1)
-            c = r['candidates'][0]
-            fontes = [(ch.get('web', {}).get('title', '') + ' ' + ch.get('web', {}).get('uri', '')).strip() for ch in c.get('groundingMetadata', {}).get('groundingChunks', [])]
-            return {'texto': ''.join(p.get('text', '') for p in c['content']['parts']), 'modelo': 'gemini-3.5-flash (com pesquisa Google)', 'fontes': fontes}
-        except Exception as e:
-            print(f'  google: sem pesquisa a partir daqui ({str(e)[:100]})', flush=True)
-            pesquisa['google'] = False
     erro = None
     for m in ('gemini-3.5-flash', 'gemini-flash-lite-latest'):
         try:
@@ -86,9 +104,25 @@ def print(*a, **k):  # o que se escreve no ecra fica tambem em respostas/AAAA-MM
         fh.write('\n'.join(LOG) + '\n')
 
 
+def memoria_feita(motor):
+    # os modelos sem pesquisa so mudam quando sai uma versao nova: mede-se uma vez por mes (no 1.o dia em que o workflow corre)
+    mes = DATA[:7]
+    base = os.path.join(AQUI, 'respostas')
+    for d in os.listdir(base) if os.path.isdir(base) else []:
+        if d.startswith(mes) and d != DATA and os.path.exists(os.path.join(base, d, f'{motor}.json')):
+            return True
+    return False
+
+
 def main():
     os.makedirs(SAIDA, exist_ok=True)
+    motores = [('gemini_web', gemini_web, 'GEMINI_API_KEY', 7)]  # todos os dias
     for motor, f, chave, pausa in (('google', google, 'GEMINI_API_KEY', 3), ('openai', openai, 'GROQ_API_KEY', 62)):  # Groq gratis: limite de texto por minuto
+        if os.environ.get('MEMORIA') == '1' or not memoria_feita(motor):
+            motores.append((motor, f, chave, pausa))
+        else:
+            print(f'{motor}: memoria deste mes ja medida', flush=True)
+    for motor, f, chave, pausa in motores:
         if not os.environ.get(chave):
             print(f'{motor}: FALTA o secret {chave}', flush=True)
             continue
