@@ -46,7 +46,7 @@ def post(url, headers, body, espera=90, tent=2):
 # Gemini com pesquisa Google (o que se ve no gemini.google.com): conta todos os dias para a meta. Nao ha recurso sem
 # pesquisa: se nenhum modelo pesquisar, a pergunta fica sem resposta e a corrida seguinte do dia volta a tentar.
 # Tenta os modelos por ordem; o que falhar com quota (429), pedido invalido (400) ou nao existir (404) sai desta corrida.
-MODELOS_PESQUISA = ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite']
+MODELOS_PESQUISA = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest']
 fora = set()
 
 
