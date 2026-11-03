@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # Visibilidade da Redicom em motores de IA: faz as 12 perguntas de perguntas.json e grava as respostas em
 # respostas/AAAA-MM-DD/<motor>.json ({p01: {texto, modelo, fontes}}):
-#   gemini_web  Gemini com pesquisa Google, todos os dias (conta para a meta)
 #   google      Gemini sem pesquisa e openai = gpt-oss (modelo aberto da OpenAI, servido de graca pela Groq), uma vez
 #               por mes: medem o que os modelos sabem de memoria (fica a parte no dashboard)
+# O Gemini com pesquisa Google nao tem cota gratis na API (429 em todos os modelos, 03/11/2026): mede-se numa amostra
+# semanal manual no gemini.google.com, como o ChatGPT.
 # Corre no GitHub Actions (disparado pelo cron-job.org); a rotina na nuvem do Claude le estes ficheiros as 09:10 e
 # junta-os ao dashboard de notoriedade.
 # Chaves (Secrets do repositorio): GEMINI_API_KEY e GROQ_API_KEY. Nunca sao escritas.
@@ -41,33 +42,6 @@ def post(url, headers, body, espera=90, tent=2):
                 continue
             raise erro
     raise erro
-
-
-# Gemini com pesquisa Google (o que se ve no gemini.google.com): conta todos os dias para a meta. Nao ha recurso sem
-# pesquisa: se nenhum modelo pesquisar, a pergunta fica sem resposta e a corrida seguinte do dia volta a tentar.
-# Tenta os modelos por ordem; o que falhar com quota (429), pedido invalido (400) ou nao existir (404) sai desta corrida.
-MODELOS_PESQUISA = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest']
-fora = set()
-
-
-def gemini_web(q):
-    h = {'x-goog-api-key': os.environ['GEMINI_API_KEY']}
-    corpo = {'contents': [{'role': 'user', 'parts': [{'text': q}]}], 'tools': [{'google_search': {}}]}
-    erros = []
-    for m in MODELOS_PESQUISA:
-        if m in fora:
-            continue
-        try:
-            r = post(f'https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent', h, corpo, espera=90, tent=1)
-            c = r['candidates'][0]
-            fontes = [(ch.get('web', {}).get('title', '') + ' ' + ch.get('web', {}).get('uri', '')).strip() for ch in c.get('groundingMetadata', {}).get('groundingChunks', [])]
-            return {'texto': ''.join(p.get('text', '') for p in c['content']['parts']), 'modelo': f'{m} (com pesquisa Google)', 'fontes': fontes}
-        except Exception as e:
-            erros.append(f'{m}: {str(e)[:300]}')
-            if any(f'HTTP {c}' in str(e) for c in (400, 404, 429)):
-                fora.add(m)
-                print(f'  gemini_web: {m} fora desta corrida ({str(e)[:300]})', flush=True)
-    raise RuntimeError(' | '.join(erros) or 'nenhum modelo com pesquisa disponivel')
 
 
 def google(q):
@@ -116,7 +90,7 @@ def memoria_feita(motor):
 
 def main():
     os.makedirs(SAIDA, exist_ok=True)
-    motores = [('gemini_web', gemini_web, 'GEMINI_API_KEY', 7)]  # todos os dias
+    motores = []
     for motor, f, chave, pausa in (('google', google, 'GEMINI_API_KEY', 3), ('openai', openai, 'GROQ_API_KEY', 62)):  # Groq gratis: limite de texto por minuto
         if os.environ.get('MEMORIA') == '1' or not memoria_feita(motor):
             motores.append((motor, f, chave, pausa))
